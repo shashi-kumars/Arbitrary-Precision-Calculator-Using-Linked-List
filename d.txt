@@ -1,0 +1,68 @@
+#include "main.h"
+
+/*
+ * Function: division
+ * This function performs division of two large numbers represented by doubly linked lists
+ * using the long division algorithm.
+ * 1. Initialize result and remainder lists.
+ * 2. Traverse the numerator, updating the remainder and quotient.
+ * 3. Display the calculated quotient.
+ * 4. Return SUCCESS or FAILURE based on the operation's success.
+ */
+Status division(Op_var op1, Op_var op2)
+{
+    /* Check for zero denominator */
+    if ((op2.head)->data == 0)
+    {
+	printf("\nERROR: Denominator in the division cannot be 0\n");
+	return FAILURE;
+    }
+
+    Op_var quotient, remainder;
+    init_op(&quotient);
+    init_op(&remainder);
+    /* Initialize quotient to zero */
+    insert_at_first(&quotient, 0);
+
+    Dlist *current = op1.head;
+    /* Travesing list */
+    while (current != NULL)
+    {
+	/* Append the current digit to the remainder */
+	insert_at_first(&remainder, current->data);
+
+	/* Perform division on the current remainder */
+	int quotient_digit = 0;
+	while (compare_op(remainder.head, op2.head) != Op2_Greater)
+	{
+	    /* Increment the quotient digit */
+	    quotient_digit++;
+	    /* Subtract divisor from the remainder */
+	    Op_var temp;
+	    init_op(&temp);
+	    if (subtract_list(remainder, op2, 0, &temp) == FAILURE)
+	    {
+		printf("\nERROR: Failed to perform subtraction\n");
+		return FAILURE;
+	    }
+	    /* Update remainder with the result of the subtraction */
+	    remainder = temp;
+	}
+
+	/* Store the quotient digit */
+	insert_at_first(&quotient, quotient_digit);
+
+	/* Move to the next digit */
+	current = current->next;
+    }
+
+    /* Display the result */
+    printf("\nQuotient is: ");
+    display(quotient);
+
+    /* Clean up */
+    freeList(&remainder);
+
+    return SUCCESS;
+}
+
